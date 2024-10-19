@@ -1,14 +1,5 @@
 import { DurableObject } from 'cloudflare:workers'
 
-interface PromptInput {
-	id: string
-	text: string
-}
-
-interface Prompt extends PromptInput {
-  version: number
-}
-
 /**
  * PromptsDurableObject is a Durable Object that stores prompts.
  * Prompts are versioned and append only.
@@ -76,8 +67,7 @@ export class PromptsDurableObject extends DurableObject {
 	}
 
 	async delete(id: string): Promise<void> {
-    const v = new Date().getTime()
-		this.sql.exec(`INSERT INTO versions (id, text, version) VALUES (?, 'DELETED', ?)`, [id, v])
+		this.sql.exec(`INSERT INTO versions (id, text, version) VALUES (?, 'DELETED', ?)`, [id, new Date().getTime()])
 		this.sql.exec(`DELETE FROM prompts WHERE id = ?`, [id])
 	}
 }
@@ -129,7 +119,7 @@ export default {
       if (!prompt.id || !prompt.text || prompt.id.includes('/')) {
         return new Response('Bad request', { status: 400 })
       }
-      
+
       await prompts.write({ ...prompt })
       return new Response('Created', { status: 201 })
     }
