@@ -11,7 +11,8 @@ interface Prompt extends PromptInput {
 
 /**
  * PromptsDurableObject is a Durable Object that stores prompts.
- * It has versioning and can:
+ * Prompts are versioned and append only.
+ * This object can:
  *  - return a list of all prompts
  *  - get a prompt by id
  *  - get all versions of a prompt by id
@@ -33,7 +34,7 @@ export class PromptsDurableObject extends DurableObject {
 
 		this.sql.exec(`
       CREATE TABLE IF NOT EXISTS prompts(
-        id TEXT
+        id TEXT PRIMARY KEY
         text TEXT
         version INTEGER
       );
@@ -84,6 +85,12 @@ export class PromptsDurableObject extends DurableObject {
 export default {
 	/**
 	 * The prompts worker manages prompts.
+   * 
+   * - GET /prompts return all prompts
+   * - GET /prompts/:id get a prompt
+   * - GET /prompts/:id/versions get all versions of a prompt
+   * - POST /prompts create a new version of a prompt
+   * - DELETE /prompts/:id delete a prompt
 	 *
 	 * @param request - The request submitted to the Worker from the client
 	 * @param env - The interface to reference bindings declared in wrangler.toml
@@ -93,26 +100,49 @@ export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		let id: DurableObjectId = env.PROMPTS.idFromName(new URL(request.url).pathname)
 		let prompts = env.PROMPTS.get(id)
+    
+    const path = new URL(request.url).pathname
+    if (!path.startsWith('/prompts')) {
+      return new Response('Not found', { status: 404 })
+    }
 
     if (request.method === 'GET') {
-      // GET /prompts return all prompts  - prompts.list()
-      // GET /prompts/:id get a prompt - prompts.get(id)
-      // GET /prompts/:id/versions get all versions of a prompt - prompts.getVersions(id)
+      const matches = path.match(/^\/prompts\/([^\/]+)(\/versions)?\/?$/)
+      if (matches) {
+        const id = matches[1]
+        const versions = matches[2] === '/versions'
+        if (versions) {
+          // GET /prompts/:id/versions get all versions of a prompt - prompts.getVersions(id)
+          return new Response(JSON.stringify(await prompts.getVersions(id)), { status: 200 })
+        }
+        // GET /prompts/:id get a prompt - prompts.get(id)
+        return new Response(JSON.stringify(await prompts.get(id)), { status: 200 })
+      }
+      if (/^\/prompts\/?$/.test(path)) {
+        // GET /prompts return all prompts  - prompts.list()
+        return new Response(JSON.stringify(await prompts.list()), { status: 200 })
+      }
     }
-    else if (request.method === 'POST') {
+    else if (request.method === 'POST' && /^\/prompts\/?$/.test(path)) {
       // POST /prompts create a new prompt - prompts.create(...)
-    }
-    else if (request.method === 'PUT') {
-      // PUT /prompts/:id update a prompt - prompts.update(id, ...)
-
+      const prompt = await request.json<PromptInput>()
+      if (!prompt.id || !prompt.text || prompt.id.includes('/')) {
+        return new Response('Bad request', { status: 400 })
+      }
+      
+      await prompts.write({ ...prompt })
+      return new Response('Created', { status: 201 })
     }
     else if (request.method === 'DELETE') {
+      const matches = path.match(/^\/prompts\/([^\/]+)\/?$/)
+      if (!matches) {
+        return new Response('Not found', { status: 404 })
+      }
+      const id = matches[1]
       // DELETE /prompts/:id delete a prompt - prompts.delete(id)
+      await prompts.delete(id)
+      return new Response('Deleted', { status: 200 })
     }
-    else {
-      return new Response('Method not allowed', { status: 405 })
-    }
-    
-		return new Response('Hello world!', { status: 200 })
+    return new Response('Method not allowed', { status: 405 })
 	},
 } satisfies ExportedHandler<Env>
