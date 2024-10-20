@@ -1,0 +1,9 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "./src/index.ts",
+    "./src/prompt.d.ts",
+    "worker-configuration.d.ts"
+  ],
+  "out": "doc"
+}

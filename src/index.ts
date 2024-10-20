@@ -1,8 +1,17 @@
+/**
+ * Teleprompter is a Cloudflare Worker and shareable Durable Object
+ * to manages prompts at runtime.
+ * 
+ * @module teleprompter
+ * @packageDocumentation
+ */
 import { DurableObject } from 'cloudflare:workers'
+
 
 /**
  * PromptsDurableObject is a Durable Object that stores prompts.
  * Prompts are versioned and append only.
+ * 
  * This object can:
  *  - return a list of all prompts
  *  - get a prompt by id
@@ -20,7 +29,6 @@ export class PromptsDurableObject extends DurableObject {
 	 */
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env)
-
 		this.sql = ctx.storage.sql
 
 		this.sql.exec(`
@@ -72,21 +80,21 @@ export class PromptsDurableObject extends DurableObject {
 	}
 }
 
+/**
+ * The prompts worker manages prompts.
+ * 
+ * - GET /prompts return all prompts
+ * - GET /prompts/:id get a prompt
+ * - GET /prompts/:id/versions get all versions of a prompt
+ * - POST /prompts create a new version of a prompt
+ * - DELETE /prompts/:id delete a prompt
+ *
+ * @param request - The request submitted to the Worker from the client
+ * @param env - The interface to reference bindings declared in wrangler.toml
+ * @param ctx - The execution context of the Worker
+ * @returns The response to be sent back to the client
+ */
 export default {
-	/**
-	 * The prompts worker manages prompts.
-   * 
-   * - GET /prompts return all prompts
-   * - GET /prompts/:id get a prompt
-   * - GET /prompts/:id/versions get all versions of a prompt
-   * - POST /prompts create a new version of a prompt
-   * - DELETE /prompts/:id delete a prompt
-	 *
-	 * @param request - The request submitted to the Worker from the client
-	 * @param env - The interface to reference bindings declared in wrangler.toml
-	 * @param ctx - The execution context of the Worker
-	 * @returns The response to be sent back to the client
-	 */
 	async fetch(request, env, ctx): Promise<Response> {
 		let id: DurableObjectId = env.PROMPTS.idFromName(new URL(request.url).pathname)
 		let prompts = env.PROMPTS.get(id)

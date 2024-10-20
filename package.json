@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "docs": "typedoc --out docs src",
+    "docs": "typedoc",
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "start": "wrangler dev",
