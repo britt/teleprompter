@@ -63,25 +63,29 @@ export class PromptsDurableObject extends DurableObject {
 	}
 
 	async get(id: string): Promise<Prompt> {
-		const r = this.sql.exec(`SELECT * FROM prompts WHERE id = ?`, [id]).one()
+		const r = this.sql.exec(`SELECT * FROM prompts WHERE id = ?`, id).one()
 		return this.toPrompt(r)
 	}
 
 	async getVersions(id: string): Promise<Prompt[]> {
-		const r = this.sql.exec(`SELECT * FROM prompt_versions WHERE id = ?`, [id]).toArray()
-		return r.map<Prompt>(this.toPrompt)
+		const r = this.sql.exec(`SELECT * FROM prompt_versions WHERE id = ? ORDER BY version DESC`, id)
+    const results : Prompt[] = []
+    for (let row of r) {
+      // Each row is an object with a property for each column.
+      results.push(this.toPrompt(row));
+    }
+    return results
 	}
 
 	async write(prompt: PromptInput): Promise<void> {
     const v = new Date().getTime()
-    console.log(`Writing prompt ${prompt.id} version ${v}`, prompt.prompt)
 		this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, ?, ?)`, prompt.id, prompt.prompt, v)
 		this.sql.exec(`INSERT INTO prompts (id, prompt, version) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET prompt=?,version=?`, prompt.id, prompt.prompt, v, prompt.prompt, v)
 	}
 
 	async delete(id: string): Promise<void> {
-		this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, 'DELETED', ?)`, [id, new Date().getTime()])
-		this.sql.exec(`DELETE FROM prompts WHERE id = ?`, [id])
+		this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, 'DELETED', ?)`, id, new Date().getTime())
+		this.sql.exec(`DELETE FROM prompts WHERE id = ?`, id)
 	}
 }
 
