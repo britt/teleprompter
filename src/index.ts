@@ -31,20 +31,22 @@ export class PromptsDurableObject extends DurableObject {
 		super(ctx, env)
 		this.sql = ctx.storage.sql
 
+    this.sql.exec(`DROP TABLE IF EXISTS prompts`)
+    this.sql.exec(`DROP INDEX IF EXISTS prompts_id`)
+    this.sql.exec(`DROP TABLE IF EXISTS versions`)
+    this.sql.exec(`DROP INDEX IF EXISTS versions_id`)
 		this.sql.exec(`
       CREATE TABLE IF NOT EXISTS prompts(
-        id TEXT
-        prompt TEXT
+        id TEXT PRIMARY KEY,
+        prompt TEXT,
         version INTEGER
       );
     `)
-    this.sql.exec(`CREATE TABLE IF NOT EXISTS versions(
-        id TEXT
-        prompt TEXT
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS prompt_versions(
+        id TEXT,
+        prompt TEXT,
         version INTEGER
       );`)
-    this.sql.exec(`CREATE INDEX IF NOT EXISTS versions_id ON versions(id)`)
-    this.sql.exec(`CREATE INDEX IF NOT EXISTS prompts_id ON prompts(id)`)
 	}
 
 	toPrompt(row: Record<string, SqlStorageValue>): Prompt {
@@ -66,19 +68,19 @@ export class PromptsDurableObject extends DurableObject {
 	}
 
 	async getVersions(id: string): Promise<Prompt[]> {
-		const r = this.sql.exec(`SELECT * FROM versions WHERE id = ?`, [id]).toArray()
+		const r = this.sql.exec(`SELECT * FROM prompt_versions WHERE id = ?`, [id]).toArray()
 		return r.map<Prompt>(this.toPrompt)
 	}
 
 	async write(prompt: PromptInput): Promise<void> {
     const v = new Date().getTime()
-    console.log(`Writing prompt ${prompt.id} version ${v}`)
-		this.sql.exec(`INSERT INTO versions (id, prompt, version) VALUES (?, ?, ?)`, [prompt.id, prompt.prompt, v])
-		this.sql.exec(`INSERT INTO prompts (id, prompt, version) VALUES (?, ?, ?) ON CONFLICT(id) UPDATE SET text=?,version=?`, [prompt.id, prompt.prompt, v, prompt.prompt, v])
+    console.log(`Writing prompt ${prompt.id} version ${v}`, prompt.prompt)
+		this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, ?, ?)`, prompt.id, prompt.prompt, v)
+		this.sql.exec(`INSERT INTO prompts (id, prompt, version) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET prompt=?,version=?`, prompt.id, prompt.prompt, v, prompt.prompt, v)
 	}
 
 	async delete(id: string): Promise<void> {
-		this.sql.exec(`INSERT INTO versions (id, prompt, version) VALUES (?, 'DELETED', ?)`, [id, new Date().getTime()])
+		this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, 'DELETED', ?)`, [id, new Date().getTime()])
 		this.sql.exec(`DELETE FROM prompts WHERE id = ?`, [id])
 	}
 }
