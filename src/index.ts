@@ -78,8 +78,7 @@ export class PromptsDurableObject extends DurableObject {
       INSERT INTO prompts (id, prompt, version) VALUES (?, ?, ?) ON CONFLICT(id) 
         DO UPDATE SET prompt = ?, version = ? WHERE id = ?;
       `, prompt.id, prompt.prompt, v, prompt.prompt, v, prompt.id)
-      //       INSERT INTO prompt_versions (id, prompt, version) VALUES (?, ?, ?);
-
+    this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, ?, ?);`, prompt.id, prompt.prompt, v)
 	}
 
 	async delete(id: string): Promise<void> {
@@ -96,6 +95,7 @@ export class PromptsDurableObject extends DurableObject {
  * - GET /prompts/:id/versions get all versions of a prompt
  * - POST /prompts create a new version of a prompt
  * - DELETE /prompts/:id delete a prompt
+ * - POST /prompts/:id/versions/:version rollback a prompt to a previous version
  *
  * @param request - The request submitted to the Worker from the client
  * @param env - The interface to reference bindings declared in wrangler.toml
@@ -128,8 +128,7 @@ export default {
         // GET /prompts return all prompts  - prompts.list()
         return new Response(JSON.stringify(await prompts.list()), { status: 200 })
       }
-    }
-    else if (request.method === 'POST' && /^\/prompts\/?$/.test(path)) {
+    } else if (request.method === 'POST' && /^\/prompts\/?$/.test(path)) {
       // POST /prompts create a new prompt - prompts.create(...)
       const prompt = await request.json<PromptInput>()
       if (!prompt.id || !prompt.prompt || prompt.id.includes('/')) {
@@ -138,8 +137,21 @@ export default {
 
       await prompts.write({ ...prompt })
       return new Response('Created', { status: 201 })
-    }
-    else if (request.method === 'DELETE') {
+    } else if (request.method === 'POST') {
+      const matches = path.match(/^\/prompts\/([^\/]+)\/versions\/(\d+)\/?$/)
+      if (matches != null && matches.length >= 3) {
+        const id = matches[1]
+        const version = matches[2]
+        const vers = await prompts.getVersions(id) as Prompt[]
+        const rbVer = vers.find(v => v.version === parseInt(version))
+        if (!rbVer) {
+          return new Response('Not found', { status: 404 })
+        }
+
+        await prompts.write({ id, prompt: rbVer.prompt })
+        return new Response('Rolled back', { status: 200 })
+      }
+    } else if (request.method === 'DELETE') {
       const matches = path.match(/^\/prompts\/([^\/]+)\/?$/)
       if (!matches) {
         return new Response('Not found', { status: 404 })
