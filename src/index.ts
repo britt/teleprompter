@@ -37,12 +37,13 @@ export class PromptsDurableObject extends DurableObject {
         text TEXT
         version INTEGER
       );
-      CREATE TABLE IF NOT EXISTS versions(
+    `)
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS versions(
         id TEXT
         text TEXT
         version INTEGER
-      );
-    `)
+      );`)
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS prompts_id ON prompts(id)`)
 	}
 
 	toPrompt(row: Record<string, SqlStorageValue>): Prompt {
