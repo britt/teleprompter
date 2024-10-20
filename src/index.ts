@@ -73,8 +73,8 @@ export class PromptsDurableObject extends DurableObject {
 	async write(prompt: PromptInput): Promise<void> {
     const v = new Date().getTime()
     console.log(`Writing prompt ${prompt.id} version ${v}`)
-		this.sql.exec(`INSERT INTO versions (id, prompt, version) VALUES (?, ?, ?)`, [prompt.id, prompt.text, v])
-		this.sql.exec(`INSERT INTO prompts (id, prompt, version) VALUES (?, ?, ?) ON CONFLICT(id) UPDATE SET text=?,version=?`, [prompt.id, prompt.text, v, prompt.text, v])
+		this.sql.exec(`INSERT INTO versions (id, prompt, version) VALUES (?, ?, ?)`, [prompt.id, prompt.prompt, v])
+		this.sql.exec(`INSERT INTO prompts (id, prompt, version) VALUES (?, ?, ?) ON CONFLICT(id) UPDATE SET text=?,version=?`, [prompt.id, prompt.prompt, v, prompt.prompt, v])
 	}
 
 	async delete(id: string): Promise<void> {
@@ -127,7 +127,7 @@ export default {
     else if (request.method === 'POST' && /^\/prompts\/?$/.test(path)) {
       // POST /prompts create a new prompt - prompts.create(...)
       const prompt = await request.json<PromptInput>()
-      if (!prompt.id || !prompt.text || prompt.id.includes('/')) {
+      if (!prompt.id || !prompt.prompt || prompt.id.includes('/')) {
         return new Response('Bad request', { status: 400 })
       }
 
