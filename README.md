@@ -1,5 +1,7 @@
 # Teleprompter
 
+![Teleprompter](https://example.com/teleprompter-image.jpg)
+
 Teleprompter is a project for managing prompts for Large Language Model (LLM) applications at runtime on Cloudflare and Cloudflare Workers. This system provides a robust solution for handling prompts with versioning, metadata tracking, and runtime management capabilities.
 
 ## Features
