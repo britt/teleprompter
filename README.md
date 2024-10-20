@@ -53,4 +53,4 @@ This tool provides a convenient way to manage prompts, interact with the Telepro
 
 ## License
 
-(Specify the license under which this project is released)
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
