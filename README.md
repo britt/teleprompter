@@ -7,7 +7,6 @@ Teleprompter is a project for managing prompts for Large Language Model (LLM) ap
 - Runtime prompt management
 - Versioning support
 - Metadata tracking
-- Editor interface
 - Cloudflare Durable Objects integration
 
 ## Prompt Structure
@@ -20,9 +19,8 @@ Each prompt in the system consists of the following fields:
 
 ## Components
 
-1. **Editor Interface**: A user-friendly interface for creating, editing, and managing prompts.
-2. **Durable Object**: Utilizes Cloudflare's Durable Objects for state management and persistence.
-3. **CLI Tool**: A command-line interface for interacting with the Teleprompter worker and prompt store.
+1. **Durable Object**: Utilizes Cloudflare's Durable Objects for state management and persistence.
+2. **CLI Tool**: A command-line interface for interacting with the Teleprompter worker and prompt store.
 
 ## Capabilities
 
