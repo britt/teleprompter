@@ -1,6 +1,6 @@
-# Prompt CMS
+# Teleprompter
 
-Prompt CMS is a project for managing prompts for Large Language Model (LLM) applications at runtime on Cloudflare and Cloudflare Workers. This system provides a robust solution for handling prompts with versioning, metadata tracking, and runtime management capabilities.
+Teleprompter is a project for managing prompts for Large Language Model (LLM) applications at runtime on Cloudflare and Cloudflare Workers. This system provides a robust solution for handling prompts with versioning, metadata tracking, and runtime management capabilities.
 
 ## Features
 
@@ -35,7 +35,7 @@ Each prompt in the system consists of the following fields:
 
 ## Usage
 
-(Add examples and instructions for using the Prompt CMS)
+(Add examples and instructions for using Teleprompter)
 
 ## Contributing
 
