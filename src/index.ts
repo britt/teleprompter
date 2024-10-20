@@ -20,7 +20,7 @@ import { DurableObject } from 'cloudflare:workers'
  *  - delete a prompt
  */
 export class PromptsDurableObject extends DurableObject {
-	sql: SqlStorage
+	sql: SqlStorage = this.ctx.storage.sql
 	/**
 	 *  The constructor is invoked once and initializes the storage.
 	 *
@@ -29,12 +29,7 @@ export class PromptsDurableObject extends DurableObject {
 	 */
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env)
-		this.sql = ctx.storage.sql
 
-    this.sql.exec(`DROP TABLE IF EXISTS prompts`)
-    this.sql.exec(`DROP INDEX IF EXISTS prompts_id`)
-    this.sql.exec(`DROP TABLE IF EXISTS versions`)
-    this.sql.exec(`DROP INDEX IF EXISTS versions_id`)
 		this.sql.exec(`
       CREATE TABLE IF NOT EXISTS prompts(
         id TEXT PRIMARY KEY,
@@ -52,7 +47,7 @@ export class PromptsDurableObject extends DurableObject {
 	toPrompt(row: Record<string, SqlStorageValue>): Prompt {
 		return {
 			id: row.id as string,
-			prompt: row.text as string,
+			prompt: row.prompt as string,
 			version: row.version as number,
 		}
 	}
@@ -63,12 +58,12 @@ export class PromptsDurableObject extends DurableObject {
 	}
 
 	async get(id: string): Promise<Prompt> {
-		const r = this.sql.exec(`SELECT * FROM prompts WHERE id = ?`, id).one()
+		const r = this.sql.exec(`SELECT id, prompt, version FROM prompts WHERE id = ?`, id).one()
 		return this.toPrompt(r)
 	}
 
 	async getVersions(id: string): Promise<Prompt[]> {
-		const r = this.sql.exec(`SELECT * FROM prompt_versions WHERE id = ? ORDER BY version DESC`, id)
+		const r = this.sql.exec(`SELECT id, prompt, version FROM prompt_versions WHERE id = ? ORDER BY version DESC`, id)
     const results : Prompt[] = []
     for (let row of r) {
       // Each row is an object with a property for each column.
@@ -79,13 +74,17 @@ export class PromptsDurableObject extends DurableObject {
 
 	async write(prompt: PromptInput): Promise<void> {
     const v = new Date().getTime()
-		this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, ?, ?)`, prompt.id, prompt.prompt, v)
-		this.sql.exec(`INSERT INTO prompts (id, prompt, version) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET prompt=?,version=?`, prompt.id, prompt.prompt, v, prompt.prompt, v)
+    this.sql.exec(`
+      INSERT INTO prompts (id, prompt, version) VALUES (?, ?, ?) ON CONFLICT(id) 
+        DO UPDATE SET prompt = ?, version = ? WHERE id = ?;
+      `, prompt.id, prompt.prompt, v, prompt.prompt, v, prompt.id)
+      //       INSERT INTO prompt_versions (id, prompt, version) VALUES (?, ?, ?);
+
 	}
 
 	async delete(id: string): Promise<void> {
-		this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, 'DELETED', ?)`, id, new Date().getTime())
 		this.sql.exec(`DELETE FROM prompts WHERE id = ?`, id)
+		this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, 'DELETED', ?)`, id, new Date().getTime())
 	}
 }
 
@@ -105,7 +104,7 @@ export class PromptsDurableObject extends DurableObject {
  */
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		let id: DurableObjectId = env.PROMPTS.idFromName(new URL(request.url).pathname)
+		let id: DurableObjectId = env.PROMPTS.idFromName("teleprompter")
 		let prompts = env.PROMPTS.get(id)
     
     const path = new URL(request.url).pathname
