@@ -33,7 +33,7 @@ export class PromptsDurableObject extends DurableObject {
 
 		this.sql.exec(`
       CREATE TABLE IF NOT EXISTS prompts(
-        id TEXT PRIMARY KEY
+        id TEXT
         text TEXT
         version INTEGER
       );
