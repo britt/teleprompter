@@ -3,3 +3,5 @@ dist/
 docs/
 coverage/
 wrangler.toml
+*.sqlite
+.wrangler/*

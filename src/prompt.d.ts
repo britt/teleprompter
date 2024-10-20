@@ -4,7 +4,7 @@
  */
 interface PromptInput {
 	id: string
-	text: string
+	prompt: string
 }
 
 /**

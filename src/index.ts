@@ -34,22 +34,23 @@ export class PromptsDurableObject extends DurableObject {
 		this.sql.exec(`
       CREATE TABLE IF NOT EXISTS prompts(
         id TEXT
-        text TEXT
+        prompt TEXT
         version INTEGER
       );
     `)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS versions(
         id TEXT
-        text TEXT
+        prompt TEXT
         version INTEGER
       );`)
+    this.sql.exec(`CREATE INDEX IF NOT EXISTS versions_id ON versions(id)`)
     this.sql.exec(`CREATE INDEX IF NOT EXISTS prompts_id ON prompts(id)`)
 	}
 
 	toPrompt(row: Record<string, SqlStorageValue>): Prompt {
 		return {
 			id: row.id as string,
-			text: row.text as string,
+			prompt: row.text as string,
 			version: row.version as number,
 		}
 	}
@@ -71,12 +72,13 @@ export class PromptsDurableObject extends DurableObject {
 
 	async write(prompt: PromptInput): Promise<void> {
     const v = new Date().getTime()
-		this.sql.exec(`INSERT INTO versions (id, text, version) VALUES (?, ?, ?)`, [prompt.id, prompt.text, v])
-		this.sql.exec(`INSERT INTO prompts (id, text, version) VALUES (?, ?, ?) ON CONFLICT(id) UPDATE SET text=?,version=?`, [prompt.id, prompt.text, v, prompt.text, v])
+    console.log(`Writing prompt ${prompt.id} version ${v}`)
+		this.sql.exec(`INSERT INTO versions (id, prompt, version) VALUES (?, ?, ?)`, [prompt.id, prompt.text, v])
+		this.sql.exec(`INSERT INTO prompts (id, prompt, version) VALUES (?, ?, ?) ON CONFLICT(id) UPDATE SET text=?,version=?`, [prompt.id, prompt.text, v, prompt.text, v])
 	}
 
 	async delete(id: string): Promise<void> {
-		this.sql.exec(`INSERT INTO versions (id, text, version) VALUES (?, 'DELETED', ?)`, [id, new Date().getTime()])
+		this.sql.exec(`INSERT INTO versions (id, prompt, version) VALUES (?, 'DELETED', ?)`, [id, new Date().getTime()])
 		this.sql.exec(`DELETE FROM prompts WHERE id = ?`, [id])
 	}
 }
