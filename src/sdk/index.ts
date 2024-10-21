@@ -22,9 +22,11 @@ export class TeleprompterSDK {
 
   private async fetch(path: string, init?: RequestInit): Promise<Response> {
     if (this.baseUrl) {
-      return fetch(`${this.baseUrl}${path}`, init)
+      const url = new URL(path, this.baseUrl)
+      return fetch(url.toString(), init)
     } else if (this.binding) {
-      return this.binding.fetch(`https://dummy${path}`, init)
+      const url = new URL(path, 'https://dummy')
+      return this.binding.fetch(url.toString(), init)
     } else {
       throw new Error('TeleprompterSDK was not initialized correctly')
     }
