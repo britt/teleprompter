@@ -5,43 +5,43 @@
  */
 
 export class TeleprompterSDK {
-  private baseUrl: string;
+  private baseUrl: string
 
   constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl
   }
 
   /**
    * Get all prompts
    */
   async listPrompts(): Promise<Prompt[]> {
-    const response = await fetch(`${this.baseUrl}/prompts`);
+    const response = await fetch(`${this.baseUrl}/prompts`)
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
-    return response.json();
+    return response.json()
   }
 
   /**
    * Get a specific prompt by ID
    */
   async getPrompt(id: string): Promise<Prompt> {
-    const response = await fetch(`${this.baseUrl}/prompts/${id}`);
+    const response = await fetch(`${this.baseUrl}/prompts/${id}`)
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
-    return response.json();
+    return response.json()
   }
 
   /**
    * Get all versions of a specific prompt
    */
   async getPromptVersions(id: string): Promise<Prompt[]> {
-    const response = await fetch(`${this.baseUrl}/prompts/${id}/versions`);
+    const response = await fetch(`${this.baseUrl}/prompts/${id}/versions`)
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
-    return response.json();
+    return response.json()
   }
 
   /**
@@ -54,9 +54,9 @@ export class TeleprompterSDK {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(prompt),
-    });
+    })
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
   }
 
@@ -66,9 +66,9 @@ export class TeleprompterSDK {
   async deletePrompt(id: string): Promise<void> {
     const response = await fetch(`${this.baseUrl}/prompts/${id}`, {
       method: 'DELETE',
-    });
+    })
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
   }
 
@@ -78,9 +78,9 @@ export class TeleprompterSDK {
   async rollbackPrompt(id: string, version: number): Promise<void> {
     const response = await fetch(`${this.baseUrl}/prompts/${id}/versions/${version}`, {
       method: 'POST',
-    });
+    })
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
   }
 }
