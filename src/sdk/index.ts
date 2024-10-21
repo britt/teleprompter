@@ -76,7 +76,11 @@ export class TeleprompterSDK {
    * Rollback a prompt to a previous version
    */
   async rollbackPrompt(id: string, version: number): Promise<void> {
-    // TODO: Implement
-    throw new Error("Not implemented");
+    const response = await fetch(`${this.baseUrl}/prompts/${id}/versions/${version}`, {
+      method: 'POST',
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 }
