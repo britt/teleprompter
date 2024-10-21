@@ -26,16 +26,22 @@ export class TeleprompterSDK {
    * Get all prompts
    */
   async listPrompts(): Promise<Prompt[]> {
-    // TODO: Implement
-    throw new Error("Not implemented");
+    const response = await fetch(`${this.baseUrl}/prompts`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
   }
 
   /**
    * Get a specific prompt by ID
    */
   async getPrompt(id: string): Promise<Prompt> {
-    // TODO: Implement
-    throw new Error("Not implemented");
+    const response = await fetch(`${this.baseUrl}/prompts/${id}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
   }
 
   /**
