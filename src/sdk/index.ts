@@ -48,16 +48,28 @@ export class TeleprompterSDK {
    * Create a new prompt or update an existing one
    */
   async writePrompt(prompt: PromptInput): Promise<void> {
-    // TODO: Implement
-    throw new Error("Not implemented");
+    const response = await fetch(`${this.baseUrl}/prompts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(prompt),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 
   /**
    * Delete a prompt
    */
   async deletePrompt(id: string): Promise<void> {
-    // TODO: Implement
-    throw new Error("Not implemented");
+    const response = await fetch(`${this.baseUrl}/prompts/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 
   /**
