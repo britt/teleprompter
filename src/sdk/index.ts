@@ -37,8 +37,11 @@ export class TeleprompterSDK {
    * Get all versions of a specific prompt
    */
   async getPromptVersions(id: string): Promise<Prompt[]> {
-    // TODO: Implement
-    throw new Error("Not implemented");
+    const response = await fetch(`${this.baseUrl}/prompts/${id}/versions`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
   }
 
   /**
