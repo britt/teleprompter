@@ -4,8 +4,6 @@
  * This SDK provides methods to interact with the Teleprompter service.
  */
 
-import { Prompt, PromptInput } from '../index';
-
 export class TeleprompterSDK {
   private baseUrl: string;
 
