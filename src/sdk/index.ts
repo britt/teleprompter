@@ -4,16 +4,7 @@
  * This SDK provides methods to interact with the Teleprompter service.
  */
 
-export interface Prompt {
-  id: string;
-  prompt: string;
-  version: number;
-}
-
-export interface PromptInput {
-  id: string;
-  prompt: string;
-}
+import { Prompt, PromptInput } from '../index';
 
 export class TeleprompterSDK {
   private baseUrl: string;
