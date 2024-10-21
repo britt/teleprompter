@@ -4,11 +4,15 @@
  * This SDK provides methods to interact with the Teleprompter service.
  */
 
+interface Fetcher {
+  fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+}
+
 export class TeleprompterSDK {
   private baseUrl?: string
-  private binding?: any
+  private binding?: Fetcher
 
-  constructor(urlOrBinding: string | any) {
+  constructor(urlOrBinding: string | Fetcher) {
     if (typeof urlOrBinding === 'string') {
       this.baseUrl = urlOrBinding
     } else {
