@@ -8,7 +8,61 @@ interface Fetcher {
   fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
 }
 
-export class TeleprompterSDK {
+interface TeleprompterSDK {
+  listPrompts(): Promise<Prompt[]>
+  getPrompt(id: string): Promise<Prompt>
+  getPromptVersions(id: string): Promise<Prompt[]>
+  writePrompt(prompt: PromptInput): Promise<void>
+  deletePrompt(id: string): Promise<void>
+  rollbackPrompt(id: string, version: number): Promise<void>
+}
+
+interface TeleprompterDO {
+  list(): Promise<Prompt[]>
+  get(id: string): Promise<Prompt>
+  getVersions(id: string): Promise<Prompt[]>
+  write(prompt: PromptInput): Promise<void>
+  delete(id: string): Promise<void>
+}
+
+export class TeleprompterDOSDK implements TeleprompterSDK {
+  private do: TeleprompterDO
+
+  constructor(doInstance: TeleprompterDO) {
+    this.do = doInstance
+  }
+
+  async listPrompts(): Promise<Prompt[]> {
+    return this.do.list()
+  }
+
+  async getPrompt(id: string): Promise<Prompt> {
+    return this.do.get(id)
+  }
+
+  async getPromptVersions(id: string): Promise<Prompt[]> {
+    return this.do.getVersions(id)
+  }
+
+  async writePrompt(prompt: PromptInput): Promise<void> {
+    return this.do.write(prompt)
+  }
+
+  async deletePrompt(id: string): Promise<void> {
+    return this.do.delete(id)
+  }
+
+  async rollbackPrompt(id: string, version: number): Promise<void> {
+    const v = await this.getPromptVersions(id)
+    const rbVer = v.find(v => v.version === version)
+    if (!rbVer) {
+      throw new Error('Version not found')
+    }
+    return this.writePrompt({ id, prompt: rbVer.prompt })
+  }
+}
+
+export class TeleprompterHTTPSDK implements TeleprompterSDK {
   private baseUrl?: string
   private binding?: Fetcher
 

@@ -7,7 +7,6 @@
  */
 import { DurableObject } from 'cloudflare:workers'
 
-
 /**
  * PromptsDurableObject is a Durable Object that stores prompts.
  * Prompts are versioned and append only.
