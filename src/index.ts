@@ -163,3 +163,5 @@ export default {
     return new Response('Method not allowed', { status: 405 })
 	},
 } satisfies ExportedHandler<Env>
+
+export type * from './index.d.ts'
