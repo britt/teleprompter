@@ -6,7 +6,8 @@
     ],
     "types": [
 			"@cloudflare/workers-types/2023-07-01",
-      "jest"
+      "jest",
+      "./src/index.d.ts"
 		],		
     "outDir": "./dist",
     "moduleResolution": "node",

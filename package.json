@@ -11,6 +11,7 @@
     "start": "wrangler dev",
     "cf-typegen": "wrangler types"
   },
+  "types": "./src/index.d.ts",
   "exports": {
     "./sdk": "./dist/src/sdk/index.js"
   },

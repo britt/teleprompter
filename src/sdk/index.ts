@@ -8,23 +8,6 @@ interface Fetcher {
   fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
 }
 
-interface TeleprompterSDK {
-  listPrompts(): Promise<Prompt[]>
-  getPrompt(id: string): Promise<Prompt>
-  getPromptVersions(id: string): Promise<Prompt[]>
-  writePrompt(prompt: PromptInput): Promise<void>
-  deletePrompt(id: string): Promise<void>
-  rollbackPrompt(id: string, version: number): Promise<void>
-}
-
-interface TeleprompterDO {
-  list(): Promise<Prompt[]>
-  get(id: string): Promise<Prompt>
-  getVersions(id: string): Promise<Prompt[]>
-  write(prompt: PromptInput): Promise<void>
-  delete(id: string): Promise<void>
-}
-
 export class TeleprompterDOSDK implements TeleprompterSDK {
   private do: TeleprompterDO
 
