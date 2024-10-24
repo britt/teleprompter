@@ -11,6 +11,9 @@
     "start": "wrangler dev",
     "cf-typegen": "wrangler types"
   },
+  "exports": {
+    "./sdk": "./src/sdk/index.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",
