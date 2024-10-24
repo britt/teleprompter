@@ -12,7 +12,7 @@
     "cf-typegen": "wrangler types"
   },
   "exports": {
-    "./sdk": "./src/sdk/index.ts"
+    "./sdk": "./dist/src/sdk/index.js"
   },
   "keywords": [],
   "author": "",

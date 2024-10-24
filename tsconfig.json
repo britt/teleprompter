@@ -8,11 +8,11 @@
 			"@cloudflare/workers-types/2023-07-01",
       "jest"
 		],		
+    "outDir": "./dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
 		"allowJs": true,
 		"checkJs": false,
-		"noEmit": true,
 		"isolatedModules": true,
     "jsx": "react-jsx",
     "module": "es2022",
