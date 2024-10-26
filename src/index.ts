@@ -98,7 +98,7 @@ export class PromptsDurableObject extends DurableObject {
 }
 
 async function sendUpdate(env: Env, input: Prompt): Promise<void> {
-  const queue = env.PUBLISH_QUEUES.get(input.namespace)
+  const queue = env.PUBLISH_QUEUES[input.namespace]
   return queue.put(Teleprompter.UpdateMessage(input))
 }
 
