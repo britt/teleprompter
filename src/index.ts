@@ -97,14 +97,21 @@ export class PromptsDurableObject extends DurableObject {
   }
 }
 
+async function sendMessage(env: Env, namespace: string, msg: Teleprompter.Messages.PromptUpdate | Teleprompter.Messages.PromptDelete): Promise<void> {
+  for( const [k,v] of Object.entries(env)) {
+    if (k === namespace) {
+      return v.send(msg)
+    }
+  }
+  throw new Error('Namespace not found')
+}
+
 async function sendUpdate(env: Env, input: Prompt): Promise<void> {
-  const queue = env.PUBLISH_QUEUES[input.namespace]
-  return queue.put(Teleprompter.UpdateMessage(input))
+  return sendMessage(env, input.namespace, Teleprompter.UpdateMessage(input))
 }
 
 async function sendDelete(env: Env, id: string, namespace: string): Promise<void> {
-  const queue = env.PUBLISH_QUEUES.get(namespace)
-  return queue.put(Teleprompter.DeleteMessage(id))
+  return sendMessage(env, namespace, Teleprompter.DeleteMessage(id))
 }
 
 /**
