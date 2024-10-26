@@ -68,12 +68,12 @@ export class PromptsDurableObject extends DurableObject {
   }
 
   async get(id: string): Promise<Prompt> {
-    const r = this.sql.exec(`SELECT id, prompt, version FROM prompts WHERE id = ?`, id).one()
+    const r = this.sql.exec(`SELECT id, prompt, namespace, version FROM prompts WHERE id = ?`, id).one()
     return this.toPrompt(r)
   }
 
   async getVersions(id: string): Promise<Prompt[]> {
-    const r = this.sql.exec(`SELECT id, prompt, version FROM prompt_versions WHERE id = ? ORDER BY version DESC`, id)
+    const r = this.sql.exec(`SELECT id, prompt, namespace, version FROM prompt_versions WHERE id = ? ORDER BY version DESC`, id)
     const results: Prompt[] = []
     for (let row of r) {
       // Each row is an object with a property for each column.
@@ -85,15 +85,15 @@ export class PromptsDurableObject extends DurableObject {
   async write(prompt: PromptInput): Promise<void> {
     const v = new Date().getTime()
     this.sql.exec(`
-      INSERT INTO prompts (id, prompt, version) VALUES (?, ?, ?) ON CONFLICT(id) 
+      INSERT INTO prompts (id, prompt, namespace, version) VALUES (?, ?, ?, ?) ON CONFLICT(id) 
         DO UPDATE SET prompt = ?, version = ? WHERE id = ?;
-      `, prompt.id, prompt.prompt, v, prompt.prompt, v, prompt.id)
-    this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, ?, ?);`, prompt.id, prompt.prompt, v)
+      `, prompt.id, prompt.prompt, prompt.namespace, v, prompt.prompt, v, prompt.id)
+    this.sql.exec(`INSERT INTO prompt_versions (id, prompt, namespace, version) VALUES (?, ?, ?, ?);`, prompt.id, prompt.prompt, prompt.namespace, v)
   }
 
   async delete(id: string): Promise<void> {
     this.sql.exec(`DELETE FROM prompts WHERE id = ?`, id)
-    this.sql.exec(`INSERT INTO prompt_versions (id, prompt, version) VALUES (?, 'DELETED', ?)`, id, new Date().getTime())
+    this.sql.exec(`INSERT INTO prompt_versions (id, prompt, namespace, version) VALUES (?, 'DELETED', 'DELETED', ?)`, id, new Date().getTime())
   }
 }
 
@@ -106,7 +106,6 @@ async function sendDelete(env: Env, id: string, namespace: string): Promise<void
   const queue = env.PUBLISH_QUEUES.get(namespace)
   return queue.put(Teleprompter.DeleteMessage(id))
 }
-
 
 /**
  * The prompts worker manages prompts.
