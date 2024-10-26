@@ -86,8 +86,8 @@ export class PromptsDurableObject extends DurableObject {
     const v = new Date().getTime()
     this.sql.exec(`
       INSERT INTO prompts (id, prompt, namespace, version) VALUES (?, ?, ?, ?) ON CONFLICT(id) 
-        DO UPDATE SET prompt = ?, version = ? WHERE id = ?;
-      `, prompt.id, prompt.prompt, prompt.namespace, v, prompt.prompt, v, prompt.id)
+        DO UPDATE SET prompt = ?, version = ?, namespace = ? WHERE id = ?;
+      `, prompt.id, prompt.prompt, prompt.namespace, v, prompt.prompt, v, prompt.namespace, prompt.id)
     this.sql.exec(`INSERT INTO prompt_versions (id, prompt, namespace, version) VALUES (?, ?, ?, ?);`, prompt.id, prompt.prompt, prompt.namespace, v)
   }
 
