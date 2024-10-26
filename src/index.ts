@@ -50,10 +50,10 @@ export class PromptsDurableObject extends DurableObject {
         version INTEGER
       );`)
     this.sql.exec(`
-      ALTER TABLE prompts ADD COLUMN IF NOT EXISTS namespace TEXT DEFAULT 'UNKNOWN';
+      ALTER TABLE prompts ADD COLUMN namespace TEXT DEFAULT 'UNKNOWN';
     `)
     this.sql.exec(`
-      ALTER TABLE prompt_versions ADD COLUMN IF NOT EXISTS namespace TEXT DEFAULT 'UNKNOWN';
+      ALTER TABLE prompt_versions ADD COLUMN namespace TEXT DEFAULT 'UNKNOWN';
     `)
   }
 
