@@ -6,4 +6,7 @@
  */
 interface Env {
 	PROMPTS: DurableObjectNamespace<import("./src/index").PromptsDurableObject>;
+	PUBLISH_QUEUES: any;
+	RL_PUBLISH_FEED: Queue;
+	RL_SUMMARIZE: Queue;
 }
