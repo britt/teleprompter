@@ -41,20 +41,16 @@ export class PromptsDurableObject extends DurableObject {
       CREATE TABLE IF NOT EXISTS prompts(
         id TEXT PRIMARY KEY,
         prompt TEXT,
+        namespace TEXT,
         version INTEGER
       );
     `)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS prompt_versions(
         id TEXT,
         prompt TEXT,
+        namespace TEXT,
         version INTEGER
       );`)
-    this.sql.exec(`
-      ALTER TABLE prompts ADD COLUMN namespace TEXT DEFAULT 'UNKNOWN';
-    `)
-    this.sql.exec(`
-      ALTER TABLE prompt_versions ADD COLUMN namespace TEXT DEFAULT 'UNKNOWN';
-    `)
   }
 
   toPrompt(row: Record<string, SqlStorageValue>): Prompt {
