@@ -2,42 +2,44 @@
 
 ![Teleprompter](https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.falcofilms.com%2FuploadsSystem%2Fshopping%2Ffiles%2Fimages%2F8j1NYUzTgv.JPG&f=1&nofb=1&ipt=04ecddc673e830605d2bb7bf46ebac24b1c56c760b2aebe24d6782c1bdc39e6c&ipo=images)
 
-Teleprompter is a project for managing prompts for Large Language Model (LLM) applications at runtime on Cloudflare and Cloudflare Workers. This system provides a robust solution for handling prompts with versioning, metadata tracking, and runtime management capabilities.
-
-## Features
-
-- Runtime prompt management
-- Versioning support
-- Metadata tracking
-- Cloudflare Durable Objects integration
-
-## Prompt Structure
-
-Each prompt in the system consists of the following fields:
-
-- `name`: TEXT
-- `text`: TEXT
-- `version`: INTEGER
+Teleprompter is a project for managing prompts for Large Language Model (LLM) applications at runtime on Cloudflare and Cloudflare Workers. This system provides a robust solution for handling prompts with versioning, metadata tracking, and runtime editing and updating.
 
 ## Components
 
-1. **Durable Object**: Utilizes Cloudflare's Durable Objects for state management and persistence.
-2. **CLI Tool**: A command-line interface for interacting with the Teleprompter worker and prompt store.
+Teleprompter has three components that work together.
 
-## Capabilities
+1. **[Worker](https://github.com/britt/teleprompter)**: The worker that manages the prompts and pushes updates
+2. **[CLI Tool](https://github.com/britt/teleprompter-cli)**: A command-line tool for viewing and managing prompts
+3. **[SDK](https://github.com/britt/teleprompter-sdk)**: A Typescript SDK for fetching your prompts
 
-- Dynamic prompt management at runtime
-- Version control for prompts
-- Metadata and tracking functionalities
-- Command-line interaction with the Teleprompter system
+## How it Works
 
-## CLI Tool
+* Every prompt is a [Mustache](https://mustache.github.io/) template.
+  * Prommpts are append only, there's no such thing  as an update just a full replacement.
+  * Prompts are versioned using the UNIX timestamp when they were created
+  * Prompts can be rollback to previous versions
+* Prompts are updated and edited by the Teleprompter worker. You can talk to it with the CLI.
+* Updates are sent to your applications via a Cloudflare Queue
+* Your application consumes the update and stashes the result in it's local KV namespace
+* You can either fetch it out or render the template directly
+* Fin
 
-Teleprompter comes with a dedicated CLI tool for easy interaction with the worker and prompt store. You can find the CLI tool at:
+### Prompt Structure
 
-[https://github.com/britt/teleprompter-cli](https://github.com/britt/teleprompter-cli)
-
-This tool provides a convenient way to manage prompts, interact with the Teleprompter worker, and perform various operations from the command line.
+```typescript
+interface Prompt {
+  id: TEXT // a unique ID for the prompt
+  text: TEXT // the text of the Mustache template
+  version: INTEGER // this is always just the UNIX timestamp of when this prom,pt was edited
+  namespace: STRING // the name of the QUEUE to send updates to
+}
+```
+   
+## Features
+- Runtime prompt management
+- Prompt Versioning
+- _(Coming Soon)_ Mustache template metadata
+- _(Coming  Soon)_ Token Counts
 
 ## Getting Started
 
