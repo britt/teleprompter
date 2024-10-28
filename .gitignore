@@ -5,3 +5,4 @@ wrangler.toml
 *.sqlite
 .wrangler/*
 .aider*
+.env
