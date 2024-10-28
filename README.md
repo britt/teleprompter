@@ -49,7 +49,50 @@ This tool provides a convenient way to manage prompts, interact with the Telepro
 
 ## Contributing
 
-(Add guidelines for contributing to the project)
+We welcome contributions to Teleprompter! Here's how you can help:
+
+### Getting Started
+
+1. Fork the repository
+2. Create a new branch for your feature: `git checkout -b feature/your-feature-name`
+3. Make your changes
+4. Write or update tests as needed
+5. Run tests to ensure everything works
+6. Commit your changes: `git commit -m "Add some feature"`
+7. Push to your fork: `git push origin feature/your-feature-name`
+8. Open a Pull Request
+
+### Development Guidelines
+
+- Follow existing code style and conventions
+- Add comments for complex logic
+- Update documentation for any changed functionality
+- Include tests for new features
+- Keep commits focused and atomic
+
+### Pull Request Process
+
+1. Update the README.md with details of changes if needed
+2. Update the version numbers following [Semantic Versioning](https://semver.org/)
+3. Your PR will be reviewed by maintainers
+4. Once approved, your PR will be merged
+
+### Bug Reports
+
+When filing an issue, please include:
+
+- A clear description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- Version information
+- Any relevant logs or error messages
+
+### Code of Conduct
+
+- Be respectful and inclusive
+- Keep discussions constructive
+- Focus on the technical merits
+- Follow project maintainers' decisions
 
 ## License
 
