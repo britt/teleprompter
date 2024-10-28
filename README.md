@@ -24,6 +24,9 @@ Teleprompter has three components that work together.
 * You can either fetch it out or render the template directly
 * Fin
 
+### Cloudflare Warp Access Control
+Teleprompter has no authentication system of its own. It uses Cloudflare Warp for access control. The authentication token retrieved from Cloudflare is stored in `$HOME/.teleprompter/token`. The token file permissions are set to 0600 to keep it private but that's all there is for security.
+
 ### Prompt Structure
 
 ```typescript
