@@ -72,7 +72,7 @@ We welcome contributions to Teleprompter! Here's how you can help:
 - Write thorough and comprehensive tests for your changes
   - Include both positive and negative test cases
   - Test edge cases and error conditions
-  - Aim for high test coverage
+  - Try to have better test coverage than I did when I first wrote it
   - Consider integration tests where appropriate
 - Add comments for complex logic
 - Update documentation for any changed functionality
@@ -82,7 +82,7 @@ We welcome contributions to Teleprompter! Here's how you can help:
 
 1. Update the README.md with details of changes if needed
 2. Update the version numbers following [Semantic Versioning](https://semver.org/)
-3. Your PR will be reviewed by the maintainer
+3. Your PR will be reviewed by the maintainer. This is not guaranteed _(or even likely)_ to be timely since it's just me.
 4. Once approved, your PR will be merged
 
 ### Bug Reports
@@ -100,7 +100,7 @@ When filing an issue, please include:
 - Be respectful and inclusive
 - Keep discussions constructive
 - Focus on the technical merits
-- Follow the project maintainer's decisions
+- Follow the maintainer's decisions
 
 ## License
 
