@@ -77,7 +77,7 @@ We welcome contributions to Teleprompter! Here's how you can help:
 
 1. Update the README.md with details of changes if needed
 2. Update the version numbers following [Semantic Versioning](https://semver.org/)
-3. Your PR will be reviewed by maintainers
+3. Your PR will be reviewed by the maintainer
 4. Once approved, your PR will be merged
 
 ### Bug Reports
@@ -95,7 +95,7 @@ When filing an issue, please include:
 - Be respectful and inclusive
 - Keep discussions constructive
 - Focus on the technical merits
-- Follow project maintainers' decisions
+- Follow the project maintainer's decisions
 
 ## License
 
