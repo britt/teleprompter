@@ -41,8 +41,6 @@ interface Prompt {
 ## Features
 - Runtime prompt management
 - Prompt Versioning
-- _(Coming Soon)_ Mustache template metadata
-- _(Coming  Soon)_ Token Counts
 
 ## Getting Started
 
