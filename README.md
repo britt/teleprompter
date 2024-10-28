@@ -64,10 +64,13 @@ We welcome contributions to Teleprompter! Here's how you can help:
 
 ### Development Guidelines
 
-- Follow existing code style and conventions
+- Write thorough and comprehensive tests for your changes
+  - Include both positive and negative test cases
+  - Test edge cases and error conditions
+  - Aim for high test coverage
+  - Consider integration tests where appropriate
 - Add comments for complex logic
 - Update documentation for any changed functionality
-- Include tests for new features
 - Keep commits focused and atomic
 
 ### Pull Request Process
