@@ -1,6 +1,6 @@
 # Teleprompter
 
-![Teleprompter](https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.falcofilms.com%2FuploadsSystem%2Fshopping%2Ffiles%2Fimages%2F8j1NYUzTgv.JPG&f=1&nofb=1&ipt=04ecddc673e830605d2bb7bf46ebac24b1c56c760b2aebe24d6782c1bdc39e6c&ipo=images)
+![Teleprompter](/docs/assets/diy_video_canon5d_teleprompter_gaffertape-285983.jpg)
 
 Teleprompter is a project for managing prompts for Large Language Model (LLM) applications at runtime on Cloudflare and Cloudflare Workers. This system provides a robust solution for handling prompts with versioning, metadata tracking, and runtime editing and updating.
 
