@@ -2,7 +2,7 @@
 
 ![Teleprompter](/docs/assets/diy_video_canon5d_teleprompter_gaffertape-285983.jpg)
 
-Teleprompter is a project for managing prompts for Large Language Model (LLM) applications at runtime on Cloudflare and Cloudflare Workers. This system provides a robust solution for handling prompts with versioning, metadata tracking, and runtime editing and updating.
+Teleprompter is a project for managing prompts for Large Language Model (LLM) applications at runtime on Cloudflare and Cloudflare Workers. It provides versioning, metadata tracking, and runtime editing and updating of prompts.
 
 ## Components
 
@@ -15,9 +15,9 @@ Teleprompter has three components that work together.
 ## How it Works
 
 * Every prompt is a [Mustache](https://mustache.github.io/) template.
-  * Prommpts are append only, there's no such thing  as an update just a full replacement.
+  * Prompts are append only, there's no such thing  as an update just a full replacement.
   * Prompts are versioned using the UNIX timestamp when they were created
-  * Prompts can be rollback to previous versions
+  * Prompts can be rolled back to previous versions
 * Prompts are updated and edited by the Teleprompter worker. You can talk to it with the CLI.
 * Updates are sent to your applications via a Cloudflare Queue
 * Your application consumes the update and stashes the result in it's local KV namespace
@@ -26,6 +26,8 @@ Teleprompter has three components that work together.
 
 ### Cloudflare Warp Access Control
 Teleprompter has no authentication system of its own. It uses Cloudflare Warp for access control. The authentication token retrieved from Cloudflare is stored in `$HOME/.teleprompter/token`. The token file permissions are set to 0600 to keep it private but that's all there is for security.
+
+_**NOTE:** Currently it does not check to see if the token is expired (coming soon). So, if you're having problems authenticating just_ `$> rm $HOME/.teleprompter/token` _and try again._
 
 ### Prompt Structure
 
@@ -44,10 +46,12 @@ interface Prompt {
 
 ## Getting Started
 
+_COMING  SOON_
 (Add instructions for setting up and running the project)
 
 ## Usage
 
+_COMING  SOON_
 (Add examples and instructions for using Teleprompter)
 
 ## Contributing
