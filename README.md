@@ -159,8 +159,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 3. Your PR will be reviewed by the maintainer. This is not guaranteed _(or even likely)_ to be timely since it's just me.
 4. Once approved, your PR will be merged
 
-_This documentation was co-authored by [doc.holiday](https://doc.holiday)._ 
-
 ### Bug Reports
 
 When filing an issue, please include:
@@ -181,3 +179,5 @@ When filing an issue, please include:
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+_This documentation was co-authored by [doc.holiday](https://doc.holiday)._ 
