@@ -150,8 +150,11 @@ We welcome contributions to Teleprompter! Here's how you can help:
 - Update documentation for any changed functionality
 - Keep commits focused and atomic
 
-### Pull Request Process
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
+---
+
+_This documentation was co-authored by [doc.holiday](https://doc.holiday)._
 1. Update the README.md with details of changes if needed
 2. Update the version numbers following [Semantic Versioning](https://semver.org/)
 3. Your PR will be reviewed by the maintainer. This is not guaranteed _(or even likely)_ to be timely since it's just me.
