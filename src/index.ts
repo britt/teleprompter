@@ -149,11 +149,12 @@ export default {
           return new Response(JSON.stringify(await prompts.getVersions(id)), { status: 200 })
         }
         // GET /prompts/:id get a prompt - prompts.get(id)
+        console.log('GET /prompts/:id get a prompt - prompts.get(id)', id)
         return new Response(JSON.stringify(await prompts.get(id)), { status: 200 })
       }
       if (/^\/prompts\/?$/.test(path)) {
         // GET /prompts return all prompts  - prompts.list()
-        return new Response(JSON.stringify(await prompts.list()), { status: 200 })
+        return new Response(JSON.stringify(await prompts.list()), { status: 200, headers: { 'Content-Type': 'application/json' } })
       }
     } else if (request.method === 'POST' && /^\/prompts\/?$/.test(path)) {
       // POST /prompts create a new prompt - prompts.create(...)
