@@ -46,8 +46,78 @@ interface Prompt {
 
 ## Getting Started
 
-_COMING  SOON_
-(Add instructions for setting up and running the project)
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) v16 or higher
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- [Cloudflare account](https://dash.cloudflare.com/) (for deploying/workers)
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) (`npm install -g wrangler`)
+
+### Installation
+
+1. **Clone the repository:**
+
+   ```sh
+   git clone https://github.com/britt/teleprompter.git
+   cd teleprompter
+   ```
+
+2. **Install dependencies:**
+
+   ```sh
+   npm install
+   # or
+   yarn install
+   ```
+
+### Configuration
+
+- Copy and edit `wrangler.example.toml` (or similar) to `wrangler.toml` and adjust for your Cloudflare account and your desired settings.
+- Bindings for Durable Objects and Queues should be declared in your `wrangler.toml`.
+
+### Running Locally for Development
+
+You can use the Wrangler CLI to run the Cloudflare Worker locally:
+
+```sh
+wrangler dev
+```
+
+This will start the development server. The prompts Durable Object will be available for testing at local endpoints (e.g., `http://localhost:8787/prompts`).
+
+### Running Tests
+
+```sh
+npm test
+```
+
+or with yarn:
+
+```sh
+yarn test
+```
+
+### Building Documentation
+
+To build the documentation using TypeDoc:
+
+```sh
+npm run docs
+```
+
+The generated documentation will be found in the `doc` directory.
+
+### Deploying to Cloudflare
+
+After configuring your credentials and `wrangler.toml`, deploy using:
+
+```sh
+wrangler deploy
+```
+
+### Managing Prompts via CLI
+
+For day-to-day prompt management, use the [Teleprompter CLI Tool](https://github.com/britt/teleprompter-cli). You can install and use it by following instructions at that repository, allowing you to create, edit, and roll back prompts in production or during development.
 
 ## Usage
 
@@ -80,8 +150,10 @@ We welcome contributions to Teleprompter! Here's how you can help:
 - Update documentation for any changed functionality
 - Keep commits focused and atomic
 
-### Pull Request Process
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
+---
+### PR Instructions
 1. Update the README.md with details of changes if needed
 2. Update the version numbers following [Semantic Versioning](https://semver.org/)
 3. Your PR will be reviewed by the maintainer. This is not guaranteed _(or even likely)_ to be timely since it's just me.
@@ -107,3 +179,5 @@ When filing an issue, please include:
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+_This documentation was co-authored by [doc.holiday](https://doc.holiday)._ 
