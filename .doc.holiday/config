@@ -1,7 +1,28 @@
-Include = [
-  "*.md",
-  "!*.js",
-  "!*.ts",
-  "!*.tsx",
-  "!*.json"
+Include = [ "*.md", "!*.js", "!*.ts", "!*.tsx", "!*.json" ]
+Publishing = "TypeDoc"
+Includes = [
+  "!**/.git/**",
+  "!**/build/**",
+  "!**/dist/**",
+  "!**/node_modules/**",
+  "!docs/**/*.html",
+  "!typedocs/**",
+  "**/*.md",
+  "**/*.rst",
+  "**/*.ts",
+  "**/*.tsx",
+  "**/*.txt",
+  "**/CHANGELOG*",
+  "**/CONTRIBUTING*",
+  "**/LICENSE*",
+  "**/README*",
+  "typedoc.config.js",
+  "typedoc.json"
 ]
+DocumentationRoot = "."
+
+[DocumentationRootEvidence]
+method = "default-root"
+message = "No clear documentation directory found, defaulting to repository root"
+docFiles = 1
+candidates = [ ]
