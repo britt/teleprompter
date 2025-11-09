@@ -46,6 +46,7 @@ flowchart LR
   W -->|Update/Delete Message| Q
   Q --> C
   C -->|Put| KV
+  C -->|Get| DO
   SDK -->|Get| KV
   APP --> SDK
 ```
