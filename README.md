@@ -19,7 +19,7 @@ Teleprompter has three components that work together.
   * Prompts are versioned using the UNIX timestamp when they were created
   * Prompts can be rolled back to previous versions
 * Prompts are updated and edited by the Teleprompter worker. You can talk to it with the CLI.
-* Updates are sent to your applications via a Cloudflare Queue
+* Updates are sent to your applications via Cloudflare Queues
 * Your application consumes the update and stashes the result in it's local KV namespace
 * You can either fetch it out or render the template directly
 * Fin
