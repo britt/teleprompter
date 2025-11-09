@@ -1,4 +1,4 @@
-# Teleprompter Theory Of Operation
+# Teleprompter Theory of Operation
 
 ## Overview
 Teleprompter manages runtime prompts for LLM applications on Cloudflare. A Cloudflare Worker exposes a small HTTP API backed by a Durable Object for storage. Operators update prompts with a CLI. When a prompt changes, the Worker publishes an update to a Cloudflare Queue identified by the prompt’s namespace. Your application consumes the update, caches the prompt in KV, and serves it via the SDK or renders it directly. Prompts are Mustache templates and are append only with rollback support.
