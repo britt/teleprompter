@@ -30,13 +30,13 @@ flowchart LR
 
   subgraph Cloudflare
     W[Teleprompter Worker]
-    DO[(Prompts Durable Object\nSQL storage: prompts, prompt_versions)]
-    Q[[Cloudflare Queue(s)]]
+    DO[Prompts Durable Object\nSQL storage: prompts, prompt_versions]
+    Q[Cloudflare Queues]
   end
 
   subgraph Application
     C[Queue Consumer]
-    KV[(KV Namespace)]
+    KV[KV Namespace]
     APP[App / Services]
     SDK[Teleprompter SDK]
   end
