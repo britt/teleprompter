@@ -2,7 +2,7 @@
 
 ![Teleprompter](/doc/assets/diy_video_canon5d_teleprompter_gaffertape-285983.jpg)
 
-Teleprompter is a project for managing prompts for Large Language Model (LLM) applications at runtime on Cloudflare and Cloudflare Workers. It provides versioning, metadata tracking, and runtime editing and updating of prompts.
+Teleprompter is a prompt management system for Large Language Model (LLM) running on Cloudflare and Cloudflare Workers. It provides versioning, metadata tracking, and runtime editing and updating of prompts.
 
 ## Components
 
