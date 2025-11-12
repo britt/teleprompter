@@ -26,10 +26,6 @@ Teleprompter has three components that work together.
 
 See also: [Theory of Operation](docs/guides/theory-of-operation.md) for the full architecture and update flow.
 
-
-### Cloudflare Warp Access Control
-Teleprompter has no authentication system of its own. It uses Cloudflare Warp for access control. The authentication token retrieved from Cloudflare is stored in `$HOME/.teleprompter/token`. The token file permissions are set to 0600 to keep it private but that's all there is for security.
-
 ### Prompt Structure
 
 ```typescript
@@ -40,10 +36,57 @@ interface Prompt {
   namespace: STRING // the name of the QUEUE to send updates to
 }
 ```
-   
-## Features
-- Runtime prompt management
-- Prompt Versioning
+
+### Example Prompt
+
+```markdown
+I want you to look at some text and decide:
+- Is this code written in a programming language?
+- What language is it written in?
+- What is the purpose of the code? 
+
+Write a short one sentence description of the nature and purpose of the code including the programming language it was written in. 
+You are narrating an article to a person that cannot see the code so begin the description by explaining that \"The article shows a code sample\" then explain the purpose of the  code example.
+
+Here are some examples of code and good descriptions.
+
+Example 1:
+Code: 
+interface CodeSummary {
+  code: boolean
+  language: string
+  summary: string
+}
+Description: The article shows a TypeScript interface definition for a CodeSummary object.
+
+Example 2:
+Code:\\t\\t
+func toDefaultValueType(dataType string, s string) (any, error) {
+  switch SqliteType(dataType) {
+  case SqliteNull:
+    return nil, nil
+  case SqliteInteger:
+    return strconv.ParseInt(s, 10, 64)
+  case SqliteReal:
+    return strconv.ParseFloat(s, 64)
+  case SqliteText:
+    return s, nil
+  case SqliteBlob:
+    return []byte(s), nil
+  case SqliteBoolean:
+    i, err := strconv.ParseInt(s, 10, 32)
+    if err != nil {
+      return false, err
+    }
+    return i != 0, nil
+  }
+  return nil, fmt.Errorf(\"unknown sqlite type: %s\", dataType)
+}
+Description: The article shows a Go function that converts a string to a value of the correct type based on a given SQLite data type.
+
+Here is the code to analyze:
+{{code}}
+```
 
 ## Getting Started
 
@@ -53,6 +96,9 @@ interface Prompt {
 - [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
 - [Cloudflare account](https://dash.cloudflare.com/) (for deploying/workers)
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) (`npm install -g wrangler`)
+
+### Cloudflare Warp Access Control
+Teleprompter has no authentication system of its own. It uses Cloudflare Warp for access control. The authentication token retrieved from Cloudflare is stored in `$HOME/.teleprompter/token`. The token file permissions are set to 0600 to keep it private but that's all there is for security.
 
 ### Installation
 
