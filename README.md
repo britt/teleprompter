@@ -30,8 +30,6 @@ See also: [Theory of Operation](docs/guides/theory-of-operation.md) for the full
 ### Cloudflare Warp Access Control
 Teleprompter has no authentication system of its own. It uses Cloudflare Warp for access control. The authentication token retrieved from Cloudflare is stored in `$HOME/.teleprompter/token`. The token file permissions are set to 0600 to keep it private but that's all there is for security.
 
-_**NOTE:** Currently it does not check to see if the token is expired (coming soon). So, if you're having problems authenticating just_ `$> rm $HOME/.teleprompter/token` _and try again._
-
 ### Prompt Structure
 
 ```typescript
