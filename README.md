@@ -46,7 +46,7 @@ I want you to look at some text and decide:
 - What is the purpose of the code? 
 
 Write a short one sentence description of the nature and purpose of the code including the programming language it was written in. 
-You are narrating an article to a person that cannot see the code so begin the description by explaining that \"The article shows a code sample\" then explain the purpose of the  code example.
+You are narrating an article to a person that cannot see the code so begin the description by explaining that "The article shows a code sample" then explain the purpose of the  code example.
 
 Here are some examples of code and good descriptions.
 
@@ -60,7 +60,7 @@ interface CodeSummary {
 Description: The article shows a TypeScript interface definition for a CodeSummary object.
 
 Example 2:
-Code:\\t\\t
+Code:
 func toDefaultValueType(dataType string, s string) (any, error) {
   switch SqliteType(dataType) {
   case SqliteNull:
@@ -80,7 +80,7 @@ func toDefaultValueType(dataType string, s string) (any, error) {
     }
     return i != 0, nil
   }
-  return nil, fmt.Errorf(\"unknown sqlite type: %s\", dataType)
+  return nil, fmt.Errorf("unknown sqlite type: %s", dataType)
 }
 Description: The article shows a Go function that converts a string to a value of the correct type based on a given SQLite data type.
 
