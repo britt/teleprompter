@@ -91,8 +91,8 @@ export function validateDotprompt(source: string): ValidationResult {
 	// Validate the YAML content directly
 	try {
 		const parsed = YAML.parse(yamlText)
-		if (parsed !== null && typeof parsed !== 'object') {
-			return { valid: false, error: 'Frontmatter must be a YAML mapping, not a scalar' }
+		if (parsed !== null && (typeof parsed !== 'object' || Array.isArray(parsed))) {
+			return { valid: false, error: 'Frontmatter must be a YAML mapping, not a scalar or array' }
 		}
 		return { valid: true }
 	} catch (e) {
