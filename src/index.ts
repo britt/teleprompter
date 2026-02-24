@@ -8,7 +8,7 @@
 import { DurableObject } from 'cloudflare:workers'
 import Teleprompter from 'teleprompter-sdk'
 import type { PromptMetadata } from './types'
-import { parseDotprompt } from './parser'
+import { parseDotprompt, validateDotprompt } from './parser'
 
 interface Dispatchable {
   namespace: string
@@ -184,6 +184,14 @@ export default {
       const prompt = await request.json<PromptInput>()
       if (!prompt.id || !prompt.prompt || prompt.id.includes('/')) {
         return new Response('Bad request', { status: 400 })
+      }
+
+      const validation = validateDotprompt(prompt.prompt)
+      if (!validation.valid) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid prompt format', detail: validation.error }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        )
       }
 
       await prompts.write({ ...prompt })

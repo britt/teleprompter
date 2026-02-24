@@ -1,4 +1,4 @@
-import { parseDotprompt } from '../parser'
+import { parseDotprompt, validateDotprompt } from '../parser'
 
 describe('parseDotprompt', () => {
 	it('parses a full dotprompt with frontmatter', () => {
@@ -102,5 +102,32 @@ describe('parseDotprompt', () => {
 		const result = parseDotprompt(source)
 
 		expect(result.metadata.ext?.myapp).toEqual({ version: 2 })
+	})
+})
+
+describe('validateDotprompt', () => {
+	it('returns ok for valid dotprompt', () => {
+		const source = '---\nmodel: test\n---\nHello {{name}}'
+		const result = validateDotprompt(source)
+		expect(result.valid).toBe(true)
+	})
+
+	it('returns ok for plain template (no frontmatter)', () => {
+		const source = 'Hello {{name}}'
+		const result = validateDotprompt(source)
+		expect(result.valid).toBe(true)
+	})
+
+	it('returns error for malformed YAML frontmatter', () => {
+		const source = '---\n  bad yaml:\n    - [unclosed\n---\nHello'
+		const result = validateDotprompt(source)
+		expect(result.valid).toBe(false)
+		expect(result.error).toBeDefined()
+	})
+
+	it('returns error for frontmatter with non-object result', () => {
+		const source = '---\njust a string\n---\nHello'
+		const result = validateDotprompt(source)
+		expect(result.valid).toBe(false)
 	})
 })

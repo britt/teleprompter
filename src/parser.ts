@@ -1,4 +1,5 @@
 import { Dotprompt } from 'dotprompt'
+import YAML from 'yaml'
 import type { ParsedDotprompt, PromptMetadata } from './types'
 
 const dp = new Dotprompt()
@@ -52,5 +53,52 @@ export function parseDotprompt(source: string): ParsedDotprompt {
 		source,
 		metadata,
 		template: parsed.template,
+	}
+}
+
+export interface ValidationResult {
+	valid: boolean
+	error?: string
+}
+
+/**
+ * Validate that a dotprompt source string has well-formed frontmatter.
+ *
+ * The dotprompt library silently swallows YAML parse errors, so we validate
+ * the frontmatter YAML directly using the `yaml` package before delegating
+ * to `parseDotprompt`.
+ */
+export function validateDotprompt(source: string): ValidationResult {
+	// No frontmatter — always valid (plain template)
+	if (!source.startsWith('---')) {
+		return { valid: true }
+	}
+
+	const fmMatch = source.match(frontmatterRegex)
+
+	// Has opening --- but no valid frontmatter block
+	if (!fmMatch) {
+		return { valid: false, error: 'Malformed frontmatter delimiters' }
+	}
+
+	const yamlText = fmMatch[1].trim()
+
+	// Empty frontmatter is fine
+	if (yamlText === '') {
+		return { valid: true }
+	}
+
+	// Validate the YAML content directly
+	try {
+		const parsed = YAML.parse(yamlText)
+		if (parsed !== null && typeof parsed !== 'object') {
+			return { valid: false, error: 'Frontmatter must be a YAML mapping, not a scalar' }
+		}
+		return { valid: true }
+	} catch (e) {
+		return {
+			valid: false,
+			error: e instanceof Error ? e.message : 'Invalid YAML in frontmatter',
+		}
 	}
 }
