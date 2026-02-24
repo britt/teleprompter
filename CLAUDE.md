@@ -146,4 +146,4 @@ npx prettier --check src/
 
 ## Verification
 
-See @VERIFICATION_PLAN.md for acceptance testing procedures.
+See @plans/dotprompt-verification-plan.md for acceptance testing procedures.
