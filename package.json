@@ -31,6 +31,7 @@
     "wrangler": "^4.16.1"
   },
   "dependencies": {
+    "dotprompt": "^1.1.2",
     "mustache": "^4.2.0",
     "teleprompter-sdk": "github:britt/teleprompter-sdk"
   }
