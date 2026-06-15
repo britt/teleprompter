@@ -18,8 +18,8 @@ Teleprompter has three components that work together.
   * Prompts are append only, there's no such thing as an update just a full replacement.
   * Prompts are versioned using the UNIX timestamp when they were created
   * Prompts can be rolled back to previous versions
-  * Dotprompt combines YAML frontmatter with a Handlebars body, and the Worker extracts metadata from the frontmatter when prompts are written.
-  * Metadata is stored alongside the prompt source for both current prompts and entries in `prompt_versions`.
+  * Dotprompt combines YAML frontmatter with a Handlebars body, and the service extracts metadata from the frontmatter when it writes prompts.
+  * The service stores metadata alongside the prompt source for both current prompts and entries in `prompt_versions`.
 * Prompts are updated and edited by the Teleprompter worker. You can talk to it with the CLI.
 * Updates are sent to your applications via Cloudflare Queues
 * Your application consumes the update and stashes the result in its local KV namespace
@@ -54,7 +54,7 @@ The Worker returns `metadata` with both current prompts and historical entries f
 
 Prompts use Google's [dotprompt](https://github.com/google/dotprompt) format: YAML frontmatter between `---` fences followed by a Handlebars template body. Plain templates without frontmatter are also accepted for backward compatibility.
 
-The parser recognizes frontmatter only when the prompt starts with `---`. It accepts plain templates without frontmatter unchanged for backward compatibility, and it also accepts empty frontmatter. The API rejects malformed YAML frontmatter with HTTP 400, and frontmatter must parse to a YAML mapping or object rather than a scalar or array.
+The service recognizes frontmatter only when the prompt starts with `---`. It accepts empty frontmatter. The API rejects malformed YAML frontmatter with HTTP 400, and frontmatter must parse to a YAML mapping or object rather than a scalar or array.
 
 ### Example Prompt
 
@@ -97,7 +97,7 @@ Look at this {{language}} code and describe its purpose in one sentence:
 
 The `prompt` field preserves the full dotprompt source, while `metadata` exposes the parsed frontmatter as a separate object.
 
-Older plain templates without frontmatter still work for backward compatibility. The Worker stores them as-is and exposes `metadata: {}`.
+Older plain templates without frontmatter still work for backward compatibility. The service stores them as-is and exposes `metadata: {}`.
 
 ## Getting Started
 
