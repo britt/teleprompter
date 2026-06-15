@@ -14,13 +14,14 @@ Teleprompter has three components that work together.
 
 ## How it Works
 
-* Every prompt is a [Mustache](https://mustache.github.io/) template.
-  * Prompts are append only, there's no such thing  as an update just a full replacement.
+* Every prompt is a [dotprompt](https://github.com/google/dotprompt) template (YAML frontmatter + Handlebars body). Plain templates without frontmatter are also supported.
+  * Prompts are append only, there's no such thing as an update just a full replacement.
   * Prompts are versioned using the UNIX timestamp when they were created
   * Prompts can be rolled back to previous versions
+  * Metadata (model, config, input/output schemas) is extracted from the frontmatter and stored alongside the template
 * Prompts are updated and edited by the Teleprompter worker. You can talk to it with the CLI.
 * Updates are sent to your applications via Cloudflare Queues
-* Your application consumes the update and stashes the result in it's local KV namespace
+* Your application consumes the update and stashes the result in its local KV namespace
 * You can either fetch it out or render the template directly
 * Fin
 
@@ -30,62 +31,52 @@ See also: [Theory of Operation](docs/guides/theory-of-operation.md) for the full
 
 ```typescript
 interface Prompt {
-  id: TEXT // a unique ID for the prompt
-  text: TEXT // the text of the Mustache template
-  version: INTEGER // this is always just the UNIX timestamp of when this prom,pt was edited
-  namespace: STRING // the name of the QUEUE to send updates to
+  id: string        // a unique ID for the prompt
+  prompt: string    // the dotprompt source (YAML frontmatter + Handlebars template)
+  version: number   // UNIX timestamp of when this prompt was edited
+  namespace: string // the name of the Queue to send updates to
+  metadata: {       // parsed from the YAML frontmatter
+    model?: string
+    config?: object
+    input?: { default?: object, schema?: object }
+    output?: { format?: string, schema?: object }
+    tools?: string[]
+    description?: string
+  }
 }
 ```
 
+### Dotprompt Format
+
+Prompts use Google's [dotprompt](https://github.com/google/dotprompt) format: YAML frontmatter between `---` fences followed by a Handlebars template body. Plain templates without frontmatter are also accepted for backward compatibility.
+
 ### Example Prompt
 
-```markdown
-I want you to look at some text and decide:
-- Is this code written in a programming language?
-- What language is it written in?
-- What is the purpose of the code? 
+```
+---
+model: anthropic/claude-sonnet-4-20250514
+config:
+  temperature: 0.3
+  maxOutputTokens: 2048
+input:
+  schema:
+    code: string
+    language?: string
+output:
+  format: json
+  schema:
+    summary: string
+    isCode: boolean
+---
+{{#role "system"}}
+You are an expert code analyst. Analyze the given code and provide a summary.
+{{/role}}
 
-Write a short one sentence description of the nature and purpose of the code including the programming language it was written in. 
-You are narrating an article to a person that cannot see the code so begin the description by explaining that "The article shows a code sample" then explain the purpose of the  code example.
+{{#role "user"}}
+Look at this {{language}} code and describe its purpose in one sentence:
 
-Here are some examples of code and good descriptions.
-
-Example 1:
-Code: 
-interface CodeSummary {
-  code: boolean
-  language: string
-  summary: string
-}
-Description: The article shows a TypeScript interface definition for a CodeSummary object.
-
-Example 2:
-Code:
-func toDefaultValueType(dataType string, s string) (any, error) {
-  switch SqliteType(dataType) {
-  case SqliteNull:
-    return nil, nil
-  case SqliteInteger:
-    return strconv.ParseInt(s, 10, 64)
-  case SqliteReal:
-    return strconv.ParseFloat(s, 64)
-  case SqliteText:
-    return s, nil
-  case SqliteBlob:
-    return []byte(s), nil
-  case SqliteBoolean:
-    i, err := strconv.ParseInt(s, 10, 32)
-    if err != nil {
-      return false, err
-    }
-    return i != 0, nil
-  }
-  return nil, fmt.Errorf("unknown sqlite type: %s", dataType)
-}
-Description: The article shows a Go function that converts a string to a value of the correct type based on a given SQLite data type.
-
-Here is the code to analyze:
 {{code}}
+{{/role}}
 ```
 
 ## Getting Started

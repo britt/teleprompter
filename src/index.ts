@@ -7,12 +7,14 @@
  */
 import { DurableObject } from 'cloudflare:workers'
 import Teleprompter from 'teleprompter-sdk'
+import type { PromptMetadata } from './types'
+import { parseDotprompt, validateDotprompt } from './parser'
 
 interface Dispatchable {
   namespace: string
 }
 
-type Prompt = Teleprompter.Prompt & Dispatchable
+type Prompt = Teleprompter.Prompt & Dispatchable & { metadata: PromptMetadata }
 type PromptInput = Teleprompter.PromptInput & Dispatchable
 
 /**
@@ -42,23 +44,41 @@ export class PromptsDurableObject extends DurableObject {
         id TEXT PRIMARY KEY,
         prompt TEXT,
         namespace TEXT,
-        version INTEGER
+        version INTEGER,
+        metadata TEXT DEFAULT '{}'
       );
     `)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS prompt_versions(
         id TEXT,
         prompt TEXT,
         namespace TEXT,
-        version INTEGER
+        version INTEGER,
+        metadata TEXT DEFAULT '{}'
       );`)
+
+    // Migration: add metadata column to existing tables
+    try {
+      this.sql.exec(`ALTER TABLE prompts ADD COLUMN metadata TEXT DEFAULT '{}'`)
+    } catch { /* column already exists */ }
+    try {
+      this.sql.exec(`ALTER TABLE prompt_versions ADD COLUMN metadata TEXT DEFAULT '{}'`)
+    } catch { /* column already exists */ }
   }
 
   toPrompt(row: Record<string, SqlStorageValue>): Prompt {
+    const metadataStr = row.metadata as string | null
+    let metadata: PromptMetadata = {}
+    if (metadataStr) {
+      try {
+        metadata = JSON.parse(metadataStr)
+      } catch { /* malformed JSON, use empty */ }
+    }
     return {
       id: row.id as string,
       prompt: row.prompt as string,
       version: row.version as number,
-      namespace: row.namespace as string
+      namespace: row.namespace as string,
+      metadata,
     }
   }
 
@@ -68,12 +88,12 @@ export class PromptsDurableObject extends DurableObject {
   }
 
   async get(id: string): Promise<Prompt> {
-    const r = this.sql.exec(`SELECT id, prompt, namespace, version FROM prompts WHERE id = ?`, id).one()
+    const r = this.sql.exec(`SELECT id, prompt, namespace, version, metadata FROM prompts WHERE id = ?`, id).one()
     return this.toPrompt(r)
   }
 
   async getVersions(id: string): Promise<Prompt[]> {
-    const r = this.sql.exec(`SELECT id, prompt, namespace, version FROM prompt_versions WHERE id = ? ORDER BY version DESC`, id)
+    const r = this.sql.exec(`SELECT id, prompt, namespace, version, metadata FROM prompt_versions WHERE id = ? ORDER BY version DESC`, id)
     const results: Prompt[] = []
     for (let row of r) {
       // Each row is an object with a property for each column.
@@ -84,16 +104,19 @@ export class PromptsDurableObject extends DurableObject {
 
   async write(prompt: PromptInput): Promise<void> {
     const v = new Date().getTime()
+    const parsed = parseDotprompt(prompt.prompt)
+    const metadataJson = JSON.stringify(parsed.metadata)
+
     this.sql.exec(`
-      INSERT INTO prompts (id, prompt, namespace, version) VALUES (?, ?, ?, ?) ON CONFLICT(id) 
-        DO UPDATE SET prompt = ?, version = ?, namespace = ? WHERE id = ?;
-      `, prompt.id, prompt.prompt, prompt.namespace, v, prompt.prompt, v, prompt.namespace, prompt.id)
-    this.sql.exec(`INSERT INTO prompt_versions (id, prompt, namespace, version) VALUES (?, ?, ?, ?);`, prompt.id, prompt.prompt, prompt.namespace, v)
+      INSERT INTO prompts (id, prompt, namespace, version, metadata) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id)
+        DO UPDATE SET prompt = ?, version = ?, namespace = ?, metadata = ? WHERE id = ?;
+      `, prompt.id, prompt.prompt, prompt.namespace, v, metadataJson, prompt.prompt, v, prompt.namespace, metadataJson, prompt.id)
+    this.sql.exec(`INSERT INTO prompt_versions (id, prompt, namespace, version, metadata) VALUES (?, ?, ?, ?, ?);`, prompt.id, prompt.prompt, prompt.namespace, v, metadataJson)
   }
 
   async delete(id: string): Promise<void> {
     this.sql.exec(`DELETE FROM prompts WHERE id = ?`, id)
-    this.sql.exec(`INSERT INTO prompt_versions (id, prompt, namespace, version) VALUES (?, 'DELETED', 'DELETED', ?)`, id, new Date().getTime())
+    this.sql.exec(`INSERT INTO prompt_versions (id, prompt, namespace, version, metadata) VALUES (?, 'DELETED', 'DELETED', ?, '{}')`, id, new Date().getTime())
   }
 }
 
@@ -163,6 +186,14 @@ export default {
         return new Response('Bad request', { status: 400 })
       }
 
+      const validation = validateDotprompt(prompt.prompt)
+      if (!validation.valid) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid prompt format', detail: validation.error }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        )
+      }
+
       await prompts.write({ ...prompt })
       // dispathc an update message
       ctx.waitUntil((async () => {
@@ -209,5 +240,3 @@ export default {
     return new Response('Method not allowed', { status: 405 })
   },
 } satisfies ExportedHandler<Env>
-
-export type * from './index.d.ts'

@@ -1,7 +1,7 @@
 # Teleprompter Theory of Operation
 
 ## Overview
-Teleprompter manages runtime prompts for LLM applications on Cloudflare. A Cloudflare Worker exposes a small HTTP API backed by a Durable Object for storage. Operators update prompts with a CLI. When a prompt changes, the Worker publishes an update to a Cloudflare Queue identified by the prompt’s namespace. Your application consumes the update, caches the prompt in KV, and serves it via the SDK or renders it directly. Prompts are Mustache templates and are append only with rollback support.
+Teleprompter manages runtime prompts for LLM applications on Cloudflare. A Cloudflare Worker exposes a small HTTP API backed by a Durable Object for storage. Operators update prompts with a CLI. When a prompt changes, the Worker publishes an update to a Cloudflare Queue identified by the prompt’s namespace. Your application consumes the update, caches the prompt in KV, and serves it via the SDK or renders it directly. Prompts use the [dotprompt](https://github.com/google/dotprompt) format (YAML frontmatter + Handlebars template body) and are append only with rollback support. Plain templates without frontmatter are also supported for backward compatibility.
 
 ## Major Components
 - Teleprompter Worker
@@ -54,15 +54,19 @@ flowchart LR
 ## Data Model
 - Prompt
   - id: string
-  - prompt: string
+  - prompt: string (full dotprompt source: YAML frontmatter + template body)
   - namespace: string
   - version: number
+  - metadata: object (parsed from the YAML frontmatter; model, config, input/output schemas, tools, description)
 - Versioning
   - version is a UNIX timestamp in milliseconds
   - Writes upsert the current row and append to prompt_versions
   - Delete removes the current row and appends a sentinel version marked as deleted
+  - Each version preserves its own metadata snapshot
 - Templates
-  - Prompt text is a Mustache template rendered by your application
+  - Prompt text is a dotprompt template (YAML frontmatter + Handlebars body) rendered by your application
+  - Plain templates without frontmatter are stored with empty metadata for backward compatibility
+  - Malformed YAML frontmatter is rejected at write time with a 400 response
 
 ## Request Routing
 - GET /prompts
@@ -98,7 +102,7 @@ sequenceDiagram
   Q-->>C: deliver update
   C->>KV: put { id, prompt, version, namespace }
   APP->>KV: get { id }
-  APP-->>APP: render Mustache or use SDK result
+  APP-->>APP: render dotprompt template or use SDK result
 ```
 
 - Rollback
@@ -120,13 +124,13 @@ curl -s http://localhost:8787/prompts | jq
 ```sh
 curl -s http://localhost:8787/prompts/homepage-hero | jq
 ```
-- Create or update a prompt
+- Create or update a prompt (dotprompt format)
 ```sh
 curl -X POST http://localhost:8787/prompts \
   -H 'Content-Type: application/json' \
   -d '{
     "id": "homepage-hero",
-    "prompt": "Hello {{name}}",
+    "prompt": "---\nmodel: anthropic/claude-sonnet-4-20250514\ninput:\n  schema:\n    name: string\n---\nHello {{name}}",
     "namespace": "RL_PUBLISH_FEED"
   }'
 ```
