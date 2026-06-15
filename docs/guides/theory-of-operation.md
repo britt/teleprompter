@@ -1,7 +1,7 @@
 # Teleprompter Theory of Operation
 
 ## Overview
- Teleprompter manages runtime prompts for LLM applications on Cloudflare. A Cloudflare Worker exposes a small HTTP API backed by a Durable Object for storage. Operators update prompts with a CLI. When a prompt changes, the Worker publishes an update to a Cloudflare Queue identified by the prompt’s namespace. Your application consumes the update, caches the prompt in KV, and serves it via the SDK or renders it directly. Prompts use the [dotprompt](https://github.com/google/dotprompt) format as the primary prompt format. Each prompt stores the full original dotprompt source plus parsed metadata extracted from YAML frontmatter. Plain templates without frontmatter remain valid only as a compatibility path. Prompts are append only with rollback support.
+ Teleprompter manages runtime prompts for LLM applications on Cloudflare. A Cloudflare Worker exposes a small HTTP API backed by a Durable Object for storage. Operators update prompts with a CLI. When a prompt changes, the Worker publishes an update to a Cloudflare Queue identified by the prompt’s namespace. Your application consumes the update, caches the prompt in KV, and serves it via the SDK or renders it directly. Prompts use the [dotprompt](https://github.com/google/dotprompt) format as the primary prompt format. Each prompt stores the full original dotprompt source plus parsed metadata extracted from YAML frontmatter. Plain templates without frontmatter remain available as a compatibility behavior. Prompts are append only with rollback support.
 
 ## Major Components
 - Teleprompter Worker
@@ -79,9 +79,9 @@ flowchart LR
   - Prompt text uses dotprompt when frontmatter begins at the start of the prompt source
   - Empty frontmatter is valid and produces `metadata: {}`
   - Plain templates without frontmatter remain valid for backward compatibility and Teleprompter stores them with `metadata: {}`
-  - Frontmatter with CRLF line endings is valid
-  - Malformed YAML frontmatter is rejected at write time
-  - Frontmatter that parses to anything other than a YAML object is rejected at write time
+  - Teleprompter accepts frontmatter with CRLF line endings
+  - Teleprompter rejects malformed YAML frontmatter at write time
+  - Teleprompter rejects frontmatter that parses to anything other than a structured metadata object at write time
 
 ## Request Routing
 - GET /prompts
@@ -164,7 +164,7 @@ curl -X POST http://localhost:8787/prompts \
   }'
 ```
 
-Teleprompter accepts this format for compatibility and stores it with `metadata: {}`.
+This compatibility format stays valid, and Teleprompter stores it with `metadata: {}`.
 - Roll back to a specific version
 ```sh
 curl -X POST http://localhost:8787/prompts/homepage-hero/versions/1731100000000
