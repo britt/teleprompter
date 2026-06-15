@@ -18,7 +18,8 @@ Teleprompter has three components that work together.
   * Prompts are append only, there's no such thing as an update just a full replacement.
   * Prompts are versioned using the UNIX timestamp when they were created
   * Prompts can be rolled back to previous versions
-  * Metadata (model, config, input/output schemas) is extracted from the frontmatter and stored alongside the template
+  * Dotprompt combines YAML frontmatter with a Handlebars body, and the service extracts metadata from the frontmatter when it writes prompts.
+  * The service stores metadata alongside the prompt source for both current prompts and entries in `prompt_versions`.
 * Prompts are updated and edited by the Teleprompter worker. You can talk to it with the CLI.
 * Updates are sent to your applications via Cloudflare Queues
 * Your application consumes the update and stashes the result in its local KV namespace
@@ -32,23 +33,28 @@ See also: [Theory of Operation](docs/guides/theory-of-operation.md) for the full
 ```typescript
 interface Prompt {
   id: string        // a unique ID for the prompt
-  prompt: string    // the dotprompt source (YAML frontmatter + Handlebars template)
+  prompt: string    // the full dotprompt source (YAML frontmatter + Handlebars body)
   version: number   // UNIX timestamp of when this prompt was edited
   namespace: string // the name of the Queue to send updates to
-  metadata: {       // parsed from the YAML frontmatter
+  metadata: {       // parsed from the YAML frontmatter, or {} when none is present
     model?: string
     config?: object
     input?: { default?: object, schema?: object }
     output?: { format?: string, schema?: object }
     tools?: string[]
     description?: string
+    ext?: object
   }
 }
 ```
 
+The Worker returns `metadata` with both current prompts and historical entries from `prompt_versions`. Prompts without YAML frontmatter keep the original template text and return `metadata: {}`.
+
 ### Dotprompt Format
 
 Prompts use Google's [dotprompt](https://github.com/google/dotprompt) format: YAML frontmatter between `---` fences followed by a Handlebars template body. Plain templates without frontmatter are also accepted for backward compatibility.
+
+The service recognizes frontmatter only when the prompt starts with `---`. It accepts empty frontmatter. The API rejects malformed YAML frontmatter with HTTP 400, and frontmatter must parse to a YAML mapping or object rather than a scalar or array.
 
 ### Example Prompt
 
@@ -58,7 +64,10 @@ model: anthropic/claude-sonnet-4-20250514
 config:
   temperature: 0.3
   maxOutputTokens: 2048
+description: Analyze source code and return a structured summary.
 input:
+  default:
+    language: typescript
   schema:
     code: string
     language?: string
@@ -67,6 +76,13 @@ output:
   schema:
     summary: string
     isCode: boolean
+tools:
+  - search
+  - fetch
+ext:
+  myapp:
+    version: 2
+    owner: platform
 ---
 {{#role "system"}}
 You are an expert code analyst. Analyze the given code and provide a summary.
@@ -78,6 +94,10 @@ Look at this {{language}} code and describe its purpose in one sentence:
 {{code}}
 {{/role}}
 ```
+
+The `prompt` field preserves the full dotprompt source, while `metadata` exposes the parsed frontmatter as a separate object.
+
+Older plain templates without frontmatter still work for backward compatibility. The service stores them as-is and exposes `metadata: {}`.
 
 ## Getting Started
 
